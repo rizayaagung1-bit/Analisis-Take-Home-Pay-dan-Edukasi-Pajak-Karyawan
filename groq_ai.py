@@ -2,7 +2,7 @@ import streamlit as st
 from groq import Groq
 
 # 1️⃣ Inisialisasi client Groq (WAJIB ADA)
-client = Groq(
+client = Groq( agung rizaya )
     api_key=st.secrets["GROQ_API_KEY"]
 )
 
