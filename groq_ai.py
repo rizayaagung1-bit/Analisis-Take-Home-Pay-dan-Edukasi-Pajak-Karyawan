@@ -5,35 +5,31 @@ def payroll_analysis(data):
     prompt = f"""
 Anda adalah AI Agent Payroll dan Edukasi Pajak Karyawan.
 
-Data gaji karyawan:
+Data gaji:
 - Gaji bruto: Rp{data['bruto']:,}
-- Potongan BPJS: Rp{data['bpjs']:,}
-- Pajak (PPh 21) bulanan: Rp{data['pph_bulanan']:,}
+- BPJS: Rp{data['bpjs']:,}
+- Pajak bulanan: Rp{data['pph_bulanan']:,}
 - Take home pay: Rp{data['take_home_pay']:,}
 
-Tugas:
-1. Berikan ANALISIS singkat kondisi gaji karyawan.
-2. Jelaskan pajak dan BPJS dengan bahasa awam.
-3. Berikan insight ringan (tanpa penghindaran pajak).
-
-Gunakan bahasa Indonesia yang mudah dipahami.
+Berikan analisis dan penjelasan singkat dengan bahasa awam.
 """
 
-    try:
-        # ✅ CLIENT DIBUAT LANGSUNG DI SINI
-        groq_client = Groq(
-            api_key=st.secrets["GROQ_API_KEY"]
-        )
+    models = [
+        "llama-3.1-8b-instant",      # paling stabil
+        "mixtral-8x7b-32768"         # fallback
+    ]
 
-        response = groq_client.chat.completions.create(
-            model="llama-3.1-70b-versatile",
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.4,
-        )
+    for model in models:
+        try:
+            groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+            response = groq_client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.4,
+            )
+            return response.choices[0].message.content
 
-        return response.choices[0].message.content
+        except Exception as e:
+            last_error = e
 
-    except Exception as e:
-        return f"AI tidak dapat memproses analisis saat ini. Detail error: {e}"
+    return f"AI tidak dapat memproses analisis saat ini. Detail error: {last_error}"
